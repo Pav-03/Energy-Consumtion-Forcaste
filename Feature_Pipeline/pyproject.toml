@@ -2,7 +2,7 @@
 name = "feature-pipeline"
 version = "0.1.0"
 description = ""
-authors = ["pavanmodi <pmodi1203@gmail.com>"]
+authors = ["pavanmodi <pmodi.ml.1203@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
