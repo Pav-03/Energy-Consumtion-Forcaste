@@ -3,7 +3,8 @@ import pandas as pd
 from great_expectations.core import ExpectationSuite
 from hsfs.feature_group import FeatureGroup
 
-from feature_pipeline.settings import SETTINGS
+
+from feature_piepline.settings import SETTINGS
 
 
 def to_feature_store(
