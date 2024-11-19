@@ -100,7 +100,7 @@ def from_api(
         datetime_format: str = "%y-%m-%d %H:%M"
 ) -> Optional[Tuple[pd.DataFrame, Dict[str, Any]]]:
     
-    # Extract data from DK energy Consumption API
+    # Extract data from DK energy Consumption API thatbstore in google drive 
 
     export_start, export_end = _compute_extraction_window(export_end_reference_datetime=export_end_reference_datetime, days_delay=days_delay, days_export=days_export)
 
@@ -117,5 +117,91 @@ def from_api(
     }
 
     return records, metadata
+
+
+def _extract_records_from_api_url(url: str, export_start: datetime.datetime, export_end: datetime.datetime):
+
+    # exctract data from official API based o given export window.
+
+    query_params = {
+        "offset": 0,
+        "sort": "HourUTC",
+        "timezone": "utc",
+        "start": export_start.strftime("%y-%m-%dT%H:%M"),
+        "end": export_end.strftime("%y-%m-%dT%H:%M"),
+    }
+
+    url = URL(url) % query_params
+    url = str(url)
+    loggers.info(f"requesting data from api with URL: {url}")
+    response = requests.get(url)
+    loggers.info(f"Response received from API with status code: {response.status_code}")
+
+    # Parse the data
+
+    try:
+        response = response.json()
+    except JSONDecodeError:
+        loggers.error(f"response status = {response.status_code}. Could not decode response from API with URL: {url}")
+
+        return None
+    
+    Records = response["records"]
+    Records = pd.DataFrame.from_records(Records)
+
+
+
+
+def _compute_extraction_window(
+        exort_end_reference_datetime: datetime.datetime, 
+        days_delay: int, 
+        days_export: int
+) -> Tuple[datetime.datetime, datetime.datetime]:
+    
+    # """Compute the extraction window relative to 'export_end_reference_datetime' and take into consideration the maximum and minimum data points available in the dataset."""
+
+    if export_end_reference_datetime is None:
+        # As the dataset expired in July 2023, we set the export end reference datetime to the last day of June 2023 + the delay.
+        export_end_reference_datetime = datetime.datetime(
+            2023, 6, 30, 21, 0, 0
+        ) + datetime.timedelta(days=days_delay)
+        export_end_reference_datetime = export_end_reference_datetime.replace(
+            minute=0, second=0, microsecond=0
+        )
+    else:
+        export_end_reference_datetime = export_end_reference_datetime.replace(
+            minute=0, second=0, microsecond=0
+        )
+
+    # TODO: Change the API source, until then we have to clamp the export_end_reference_datetime to the last day of June 2023 to simulate the same behavior.
+    expiring_dataset_datetime = datetime.datetime(2023, 6, 30, 21, 0, 0) + datetime.timedelta(
+        days=days_delay
+    )
+    if export_end_reference_datetime > expiring_dataset_datetime:
+        export_end_reference_datetime = expiring_dataset_datetime
+
+        loggers.warning(
+            "We clapped 'export_end_reference_datetime' to 'datetime(2023, 6, 30) + datetime.timedelta(days=days_delay)' as \
+        the dataset will not be updated starting from July 2023. The dataset will expire during 2023. \
+        Check out the following link for more information: https://www.energidataservice.dk/tso-electricity/ConsumptionDE35Hour"
+        )
+
+    export_end = export_end_reference_datetime - datetime.timedelta(days=days_delay)
+    export_start = export_end_reference_datetime - datetime.timedelta(
+        days=days_delay + days_export
+    )
+
+    min_export_start = datetime.datetime(2020, 6, 30, 22, 0, 0)
+    if export_start < min_export_start:
+        export_start = min_export_start
+        export_end = export_start + datetime.timedelta(days=days_export)
+
+        loggers.warning(
+            "We clapped 'export_start' to 'datetime(2020, 6, 30, 22, 0, 0)' and 'export_end' to 'export_start + datetime.timedelta(days=days_export)' as this is the latest window available in the dataset."
+        )
+
+    return export_start, export_end
+
+
 
 
