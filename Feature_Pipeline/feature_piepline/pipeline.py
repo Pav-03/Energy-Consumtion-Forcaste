@@ -65,4 +65,4 @@ def transform(data: pd.DataFrame):
     return data
 
 if __name__ == "__main__":
-    fire.fire(run)
+    fire.Fire(run)
