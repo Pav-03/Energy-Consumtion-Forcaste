@@ -57,7 +57,7 @@ def create(
 
     project = hopsworks.login(
         api_key_value=settings.SETTINGS["FS_API_KEY"],
-        project=settings.SETTINGS[FS_PROJECT_NAME],)
+        project=settings.SETTINGS["FS_PROJECT_NAME"],)
 
     fs = project.get_feature_store()
 
@@ -65,7 +65,7 @@ def create(
     try:
         feature_views = fs.get_feature_views(name="energy_consumption_denmark_view")
     except hsfs.client,exceptions.RESTAPIError:
-        loogers.info("No feature view found for energy_consumption_denmark_view.")
+        loggers.info("No feature view found for energy_consumption_denmark_view.")
 
         feature_views = []
 
