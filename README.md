@@ -1,9 +1,11 @@
 # Energy-Consumtion-Forcaste
 
-I have done real-time project of energy consumption for Maharastra government, but here I am trying out new structure called FTI ( Feature, Training, Inference ) pipeline and additionally using a feature store concept to store data, feature, model and use it as heart of system.
+## Project Introduction
+
+I am currently working on an energy consumption forecasting project for Denmark, predicting energy demand for the next 24 hours. This project leverages advanced machine learning techniques to accurately forecast usage patterns, contributing to better resource planning and energy distribution. Previously, I worked on similar projects in India, gaining hands-on experience with forecasting models. In this iteration, I am exploring new tools and methodologies, utilizing FTI structure for the ML pipeline, Hopsworks as the feature store, and deploying the solution on Google Cloud Platform (GCP) to optimize scalability and performance.
 
 
-Architecture Overview: Adopting the FTI Structure
+### Architecture Overview: Adopting the FTI Structure
 
 This project follows the FTI (Feature, Training, Inference) architecture pattern, a modular and scalable framework for building machine learning systems. The FTI structure has been integrated into this project to ensure clarity, scalability, and maintainability.
 
